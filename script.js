@@ -1,4 +1,4 @@
-var form = document.getElementById("registrationForm");
+var form = document.getElementById("registrationform");
 
 form.addEventListener("submit", function(event) {
 
