@@ -1,0 +1,41 @@
+body {
+    background-color:lightblue;
+
+}
+
+h1{
+    color:black;
+    text-align: center;
+}
+
+form {
+    background-color:white;
+    width: 500px;
+    margin:30px auto; 
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow:0 0 20px gray;
+
+}
+label {
+    font-size: 16px;
+    font-weight:bold;
+    color:black;
+    font-style:oblique;
+}
+
+input {
+    padding: 9px;
+    margin-top: 5px;
+}
+button {
+    background-color:cadetblue;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+input[type="text"]{
+    font-style:italic;
+
+}
