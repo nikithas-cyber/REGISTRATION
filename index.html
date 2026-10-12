@@ -1,73 +1,39 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Smart Service & Complaints Portal</title>
-
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
-
 <body>
-
     <header>
         <h1>Smart Service & Complaints Portal</h1>
         <p>Submit and track your service requests</p>
     </header>
 
     <main>
-
-        <!-- SUBMIT COMPLAINT -->
         <section class="panel">
-
             <h2>Submit a Complaint</h2>
 
-            <form id="complaintForm" enctype="multipart/form-data">
-
-                <!-- CUSTOMER DETAILS -->
+            <form id="complaintForm">
                 <fieldset>
                     <legend>Customer Details</legend>
 
                     <label for="name">Full Name *</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        maxlength="100"
-                        required
-                    >
+                    <input id="name" name="name" type="text" maxlength="100" required>
 
                     <label for="email">Email *</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        maxlength="150"
-                        required
-                    >
+                    <input id="email" name="email" type="email" maxlength="150" required>
 
                     <label for="phone">Phone Number *</label>
-                    <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        maxlength="15"
-                        required
-                    >
+                    <input id="phone" name="phone" type="tel" maxlength="15" required>
 
                     <label for="customer_id">Customer ID</label>
-                    <input
-                        id="customer_id"
-                        name="customer_id"
-                        type="text"
-                        maxlength="100"
-                    >
+                    <input id="customer_id" name="customer_id" type="text" maxlength="100">
                 </fieldset>
 
-                <!-- SERVICE DETAILS -->
                 <fieldset>
                     <legend>Service Details</legend>
 
@@ -94,85 +60,31 @@
                     </select>
 
                     <label for="title">Complaint Title *</label>
-                    <input
-                        id="title"
-                        name="title"
-                        type="text"
-                        maxlength="200"
-                        required
-                    >
+                    <input id="title" name="title" type="text" maxlength="200" required>
 
                     <label for="description">Problem Description *</label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        rows="5"
-                        required
-                    ></textarea>
+                    <textarea id="description" name="description" rows="5" required></textarea>
                 </fieldset>
 
-                <!-- PRIORITY -->
                 <fieldset>
                     <legend>Complaint Priority</legend>
 
                     <div class="radio-group">
-                        <label>
-                            <input
-                                type="radio"
-                                name="priority"
-                                value="low"
-                            >
-                            Low
-                        </label>
-
-                        <label>
-                            <input
-                                type="radio"
-                                name="priority"
-                                value="medium"
-                                checked
-                            >
-                            Medium
-                        </label>
-
-                        <label>
-                            <input
-                                type="radio"
-                                name="priority"
-                                value="high"
-                            >
-                            High
-                        </label>
-
-                        <label>
-                            <input
-                                type="radio"
-                                name="priority"
-                                value="urgent"
-                            >
-                            Urgent
-                        </label>
+                        <label><input type="radio" name="priority" value="low"> Low</label>
+                        <label><input type="radio" name="priority" value="medium" checked> Medium</label>
+                        <label><input type="radio" name="priority" value="high"> High</label>
+                        <label><input type="radio" name="priority" value="urgent"> Urgent</label>
                     </div>
                 </fieldset>
 
-                <!-- SERVICE LOCATION -->
                 <fieldset>
                     <legend>Service Location</legend>
 
                     <label for="address">Address</label>
-                    <textarea
-                        id="address"
-                        name="address"
-                        rows="3"
-                    ></textarea>
+                    <textarea id="address" name="address" rows="3"></textarea>
 
                     <label for="city">City</label>
-                    <input
-                        id="city"
-                        name="city"
-                        type="text"
-                        maxlength="100"
-                    >
+                    <input id="city" name="city" type="text" maxlength="100">
 
                     <label for="state">State</label>
                     <select id="state" name="state">
@@ -186,196 +98,93 @@
                     </select>
 
                     <label for="pincode">Pincode</label>
-                    <input
-                        id="pincode"
-                        name="pincode"
-                        type="text"
-                        inputmode="numeric"
-                        maxlength="10"
-                    >
+                    <input id="pincode" name="pincode" type="text"
+                           inputmode="numeric" maxlength="10">
                 </fieldset>
 
-                <!-- APPOINTMENT -->
                 <fieldset>
                     <legend>Service Appointment</legend>
 
                     <label for="date">Preferred Date</label>
-                    <input
-                        id="date"
-                        name="date"
-                        type="date"
-                    >
+                    <input id="date" name="date" type="date">
 
                     <label for="time">Preferred Time</label>
-                    <input
-                        id="time"
-                        name="time"
-                        type="time"
-                    >
+                    <input id="time" name="time" type="time">
                 </fieldset>
 
-                <!-- FILE ATTACHMENTS -->
                 <fieldset>
                     <legend>Problem Evidence</legend>
 
                     <label for="image">Problem Image</label>
-                    <input
-                        id="image"
-                        name="image"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                    >
+                    <input id="image" name="image" type="file" accept="image/*">
 
                     <label for="audio">Audio Explanation</label>
-                    <input
-                        id="audio"
-                        name="audio"
-                        type="file"
-                        accept="audio/*"
-                    >
+                    <input id="audio" name="audio" type="file" accept="audio/*">
 
                     <label for="video">Problem Video</label>
-                    <input
-                        id="video"
-                        name="video"
-                        type="file"
-                        accept="video/mp4,video/webm,video/quicktime"
-                    >
+                    <input id="video" name="video" type="file" accept="video/*">
 
                     <label for="documents">Supporting Documents</label>
-                    <input
-                        id="documents"
-                        name="documents"
-                        type="file"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        multiple
-                    >
+                    <input id="documents" name="documents" type="file"
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
 
-                    <p class="hint">
-                        You can attach an image, audio recording, video,
-                        or multiple supporting documents.
-                    </p>
+                    <p class="hint">File selection is available; uploading and storing files is not implemented yet.</p>
                 </fieldset>
 
-                <!-- ADDITIONAL INFORMATION -->
                 <fieldset>
                     <legend>Additional Information</legend>
 
                     <label for="website">Reference Website</label>
-                    <input
-                        id="website"
-                        name="website"
-                        type="url"
-                        maxlength="255"
-                        placeholder="https://example.com"
-                    >
+                    <input id="website" name="website" type="url"
+                           maxlength="255" placeholder="https://example.com">
 
-                    <label for="satisfaction">
-                        Expected Service Quality
-                    </label>
-                    <input
-                        id="satisfaction"
-                        name="satisfaction"
-                        type="range"
-                        min="1"
-                        max="10"
-                        value="5"
-                    >
+                    <label for="satisfaction">Expected Service Quality</label>
+                    <input id="satisfaction" name="satisfaction"
+                           type="range" min="1" max="10" value="5">
 
                     <label for="color">Preferred Color</label>
-                    <input
-                        id="color"
-                        name="color"
-                        type="color"
-                        value="#000000"
-                    >
+                    <input id="color" name="color" type="color" value="#000000">
                 </fieldset>
 
-                <!-- CONFIRMATION -->
                 <fieldset>
                     <legend>Confirmation</legend>
 
                     <label class="check-label">
-                        <input
-                            type="checkbox"
-                            id="updates"
-                            name="updates"
-                        >
+                        <input type="checkbox" id="updates" name="updates">
                         Receive service updates
                     </label>
 
                     <label class="check-label">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            name="terms"
-                            required
-                        >
+                        <input type="checkbox" id="terms" name="terms" required>
                         I agree to the terms and conditions
                     </label>
                 </fieldset>
 
-                <!-- BUTTONS -->
                 <div class="button-group">
-                    <button type="submit" id="submitBtn">
-                        Submit Complaint
-                    </button>
-
-                    <button type="reset" class="secondary">
-                        Clear Form
-                    </button>
+                    <button type="submit" id="submitBtn">Submit Complaint</button>
+                    <button type="reset" class="secondary">Clear Form</button>
                 </div>
 
-                <p
-                    id="formMessage"
-                    class="message"
-                    role="status"
-                    aria-live="polite"
-                ></p>
-
+                <p id="formMessage" class="message" role="status" aria-live="polite"></p>
             </form>
         </section>
 
-        <!-- TRACK COMPLAINT -->
         <section class="panel" id="trackingSection">
-
             <h2>Track Your Complaint</h2>
-
-            <p>
-                Enter the Complaint ID received after submission.
-            </p>
+            <p>Enter the Complaint ID received after submission.</p>
 
             <form id="trackingForm">
-
                 <label for="complaintId">Complaint ID</label>
-
-                <input
-                    id="complaintId"
-                    type="number"
-                    min="1"
-                    step="1"
-                    required
-                >
-
-                <button type="submit" id="trackBtn">
-                    Track Complaint
-                </button>
-
+                <input id="complaintId" type="number" min="1" step="1" required>
+                <button type="submit" id="trackBtn">Track Complaint</button>
             </form>
 
-            <div
-                id="trackingResult"
-                class="message"
-                aria-live="polite"
-            ></div>
-
+            <div id="trackingResult" class="message" aria-live="polite"></div>
         </section>
-
     </main>
 
     <footer>
         <p>&copy; 2026 Smart Service & Complaints Portal</p>
     </footer>
-
 </body>
 </html>
