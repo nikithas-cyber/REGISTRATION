@@ -5,6 +5,7 @@ const path = require("path");
 const mysql = require("mysql2");
 
 const app = express();
+app.disable("x-powered-by");
 const PORT = 3000;
 
 app.use(express.json({ limit: "100kb" }));
