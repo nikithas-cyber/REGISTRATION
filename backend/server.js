@@ -1,84 +1,160 @@
 const express = require("express");
-const mysql = require("mysql2");
 const path = require("path");
+const mysql = require("mysql2");
 
 const app = express();
+const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true }));
-
-app.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "..", "index.html"));
-});
-
 app.use(express.static(path.join(__dirname, "..")));
 
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "nikitha1281",
-    database: "student_db"
+    database: "compliants_db"
 });
 
-db.connect(function(error) {
+db.connect((error) => {
     if (error) {
-        console.log("MySQL connection failed:", error);
-    } else {
-        console.log("MySQL connected successfully!");
+        console.error("MySQL connection failed:", error.message);
+        return;
     }
+
+    console.log("MySQL connected successfully!");
 });
 
-app.post("/register", function(req, res) {
+app.get("/track-complaint/:id", (req, res) => {
+    const id = Number(req.params.id);
 
-    console.log(req.body);
+    if (!Number.isSafeInteger(id) || id < 1) {
+        return res.status(400).json({
+            message: "Enter a valid Complaint ID."
+        });
+    }
 
+    const sql = "SELECT * FROM complaints WHERE id = ?";
+
+    db.query(sql, [id], (error, results) => {
+        if (error) {
+            console.error("Tracking error:", error.message);
+
+            return res.status(500).json({
+                message: "Unable to retrieve complaint details."
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "Complaint not found. Check the Complaint ID."
+            });
+        }
+
+        res.json(results[0]);
+    });
+});
+
+app.post("/submit-complaint", (req, res) => {
+    console.log("POST /submit-complaint received");
     const {
         name,
-        registerNumber,
         email,
-        password,
-        age,
-        dob,
-        gender,
-        department,
+        phone,
+        customer_id,
+        category,
+        service,
+        title,
+        description,
+        priority,
         address,
-        mobile
+        city,
+        state,
+        pincode,
+        date,
+        time,
+        website,
+        satisfaction,
+        color,
+        updates,
+        terms
     } = req.body;
 
+    if (
+        !name?.trim() ||
+        !email?.trim() ||
+        !phone?.trim() ||
+        !category ||
+        !title?.trim() ||
+        !description?.trim() ||
+        terms !== true
+    ) {
+        return res.status(400).json({
+            message: "Complete the required fields and accept the terms."
+        });
+    }
+
     const sql = `
-        INSERT INTO students
-        (name, register_number, email, password, age, dob, gender, department, address, mobile)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO complaints (
+            name, email, phone, customer_id,
+            category, service, title, description,
+            priority, address, city, state, pincode,
+            preferred_date, preferred_time, website,
+            satisfaction, preferred_color, updates, terms
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(
-        sql,
-        [
-            name,
-            registerNumber,
-            email,
-            password,
-            age,
-            dob,
-            gender,
-            department,
-            address,
-            mobile
-        ],
-        function(error, result) {
+    const values = [
+        name.trim(),
+        email.trim(),
+        phone.trim(),
+        customer_id?.trim() || null,
+        category,
+        service || null,
+        title.trim(),
+        description.trim(),
+        priority || "medium",
+        address?.trim() || null,
+        city?.trim() || null,
+        state || null,
+        pincode?.trim() || null,
+        date || null,
+        time || null,
+        website?.trim() || null,
+        Number.isFinite(Number(satisfaction))
+            ? Number(satisfaction)
+            : null,
+        color || null,
+        updates === true ? 1 : 0,
+        1
+    ];
 
-            if (error) {
-                console.log("Database error:", error);
-                res.status(500).send("Registration failed");
-            } else {
-                console.log("Student registered. ID:", result.insertId);
-                res.send("Registration successful");
-            }
+    db.query(sql, values, (error, result) => {
+        if (error) {
+            console.error("Database error:", error.message);
 
+            return res.status(500).json({
+                message: "Could not save the complaint. Please try again."
+            });
         }
-    );
+
+        console.log("Complaint saved. ID:", result.insertId);
+
+        res.status(201).json({
+            message: "Complaint submitted successfully!",
+            complaintId: result.insertId
+        });
+    });
 });
 
-app.listen(3000, function() {
-    console.log("Server running at http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
+process.on("SIGINT", () => {
+    db.end(() => {
+        console.log("MySQL connection closed.");
+        process.exit(0);
+    });
 });

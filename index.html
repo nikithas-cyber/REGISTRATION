@@ -1,96 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Student registration form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Service & Complaints Portal</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
-
 <body>
+    <header>
+        <h1>Smart Service & Complaints Portal</h1>
+        <p>Submit and track your service requests</p>
+    </header>
 
-    <h1>Student registration form</h1>
+    <main>
+        <section class="panel">
+            <h2>Submit a Complaint</h2>
 
-    <form id="registrationform">
+            <form id="complaintForm">
+                <fieldset>
+                    <legend>Customer Details</legend>
 
-        <label>Name:</label>
-        <input type="text" id="name" placeholder="enter your name" required>
-        <br><br>
+                    <label for="name">Full Name *</label>
+                    <input id="name" name="name" type="text" maxlength="100" required>
 
-        <label>Register number:</label>
-        <input type="text" id="registerNumber" placeholder="enter your register number" required>
-        <br><br>
+                    <label for="email">Email *</label>
+                    <input id="email" name="email" type="email" maxlength="150" required>
 
-        <label>Email id:</label>
-        <input type="email" id="email" placeholder="enter your email id" required>
-        <br><br>
+                    <label for="phone">Phone Number *</label>
+                    <input id="phone" name="phone" type="tel" maxlength="15" required>
 
-        <label>Password:</label>
-        <input type="password" id="password" placeholder="enter your password" required>
-        <br><br>
+                    <label for="customer_id">Customer ID</label>
+                    <input id="customer_id" name="customer_id" type="text" maxlength="100">
+                </fieldset>
 
-        <label>Age:</label>
-        <input type="number" id="age" placeholder="enter your age" required>
-        <br><br>
+                <fieldset>
+                    <legend>Service Details</legend>
 
-        <label>Date of birth:</label>
-        <input type="date" id="dob" required>
-        <br><br>
+                    <label for="category">Service Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="computer">Computer / IT</option>
+                        <option value="appliance">Home Appliance</option>
+                        <option value="vehicle">Vehicle</option>
+                        <option value="internet">Internet / Network</option>
+                        <option value="other">Other</option>
+                    </select>
 
-        <label>Gender:</label>
+                    <label for="service">Service Type</label>
+                    <select id="service" name="service">
+                        <option value="">Select a service</option>
+                        <option value="repair">Repair</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="installation">Installation</option>
+                        <option value="inspection">Inspection</option>
+                        <option value="replacement">Replacement</option>
+                    </select>
 
-        <input type="radio" name="gender" value="Male">
-        <label>Male</label>
+                    <label for="title">Complaint Title *</label>
+                    <input id="title" name="title" type="text" maxlength="200" required>
 
-        <input type="radio" name="gender" value="Female">
-        <label>Female</label>
+                    <label for="description">Problem Description *</label>
+                    <textarea id="description" name="description" rows="5" required></textarea>
+                </fieldset>
 
-        <br><br>
+                <fieldset>
+                    <legend>Complaint Priority</legend>
 
-        <label>Skills:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="priority" value="low"> Low</label>
+                        <label><input type="radio" name="priority" value="medium" checked> Medium</label>
+                        <label><input type="radio" name="priority" value="high"> High</label>
+                        <label><input type="radio" name="priority" value="urgent"> Urgent</label>
+                    </div>
+                </fieldset>
 
-        <input type="checkbox">
-        <label>HTML</label>
+                <fieldset>
+                    <legend>Service Location</legend>
 
-        <input type="checkbox">
-        <label>CSS</label>
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" rows="3"></textarea>
 
-        <input type="checkbox">
-        <label>JavaScript</label>
+                    <label for="city">City</label>
+                    <input id="city" name="city" type="text" maxlength="100">
 
-        <br><br>
+                    <label for="state">State</label>
+                    <select id="state" name="state">
+                        <option value="">Select a state</option>
+                        <option value="tamilnadu">Tamil Nadu</option>
+                        <option value="kerala">Kerala</option>
+                        <option value="karnataka">Karnataka</option>
+                        <option value="andhra-pradesh">Andhra Pradesh</option>
+                        <option value="telangana">Telangana</option>
+                        <option value="maharashtra">Maharashtra</option>
+                    </select>
 
-        <label>Department:</label>
+                    <label for="pincode">Pincode</label>
+                    <input id="pincode" name="pincode" type="text"
+                           inputmode="numeric" maxlength="10">
+                </fieldset>
 
-        <select id="department">
-            <option value="ECE">ECE</option>
-            <option value="CSE">CSE</option>
-            <option value="EEE">EEE</option>
-            <option value="MECH">MECH</option>
-            <option value="CIVIL">CIVIL</option>
-        </select>
+                <fieldset>
+                    <legend>Service Appointment</legend>
 
-        <br><br>
+                    <label for="date">Preferred Date</label>
+                    <input id="date" name="date" type="date">
 
-        <label>Address:</label>
-        <textarea id="address"></textarea>
+                    <label for="time">Preferred Time</label>
+                    <input id="time" name="time" type="time">
+                </fieldset>
 
-        <br><br>
+                <fieldset>
+                    <legend>Problem Evidence</legend>
 
-        <label>Mobile no:</label>
-        <input type="tel" id="mobile">
+                    <label for="image">Problem Image</label>
+                    <input id="image" name="image" type="file" accept="image/*">
 
-        <br><br>
+                    <label for="audio">Audio Explanation</label>
+                    <input id="audio" name="audio" type="file" accept="audio/*">
 
-        <label>Upload resume:</label>
-        <input type="file">
+                    <label for="video">Problem Video</label>
+                    <input id="video" name="video" type="file" accept="video/*">
 
-        <br><br>
+                    <label for="documents">Supporting Documents</label>
+                    <input id="documents" name="documents" type="file"
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
 
-        <button type="submit">Register</button>
-        <button type="reset">Clear</button>
+                    <p class="hint">File selection is available; uploading and storing files is not implemented yet.</p>
+                </fieldset>
 
-    </form>
+                <fieldset>
+                    <legend>Additional Information</legend>
 
-    <script src="script.js"></script>
+                    <label for="website">Reference Website</label>
+                    <input id="website" name="website" type="url"
+                           maxlength="255" placeholder="https://example.com">
 
+                    <label for="satisfaction">Expected Service Quality</label>
+                    <input id="satisfaction" name="satisfaction"
+                           type="range" min="1" max="10" value="5">
+
+                    <label for="color">Preferred Color</label>
+                    <input id="color" name="color" type="color" value="#000000">
+                </fieldset>
+
+                <fieldset>
+                    <legend>Confirmation</legend>
+
+                    <label class="check-label">
+                        <input type="checkbox" id="updates" name="updates">
+                        Receive service updates
+                    </label>
+
+                    <label class="check-label">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        I agree to the terms and conditions
+                    </label>
+                </fieldset>
+
+                <div class="button-group">
+                    <button type="submit" id="submitBtn">Submit Complaint</button>
+                    <button type="reset" class="secondary">Clear Form</button>
+                </div>
+
+                <p id="formMessage" class="message" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <section class="panel" id="trackingSection">
+            <h2>Track Your Complaint</h2>
+            <p>Enter the Complaint ID received after submission.</p>
+
+            <form id="trackingForm">
+                <label for="complaintId">Complaint ID</label>
+                <input id="complaintId" type="number" min="1" step="1" required>
+                <button type="submit" id="trackBtn">Track Complaint</button>
+            </form>
+
+            <div id="trackingResult" class="message" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Smart Service & Complaints Portal</p>
+    </footer>
 </body>
 </html>
