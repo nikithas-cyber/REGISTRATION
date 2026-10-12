@@ -1,10 +1,10 @@
+
 const complaintForm = document.getElementById("complaintForm");
 const trackingForm = document.getElementById("trackingForm");
 const submitBtn = document.getElementById("submitBtn");
 const trackBtn = document.getElementById("trackBtn");
 const formMessage = document.getElementById("formMessage");
 const trackingResult = document.getElementById("trackingResult");
-
 
 async function sendRequest(url, options) {
     const response = await fetch(url, options);
@@ -15,9 +15,7 @@ async function sendRequest(url, options) {
     console.log("Response:", responseText);
 
     if (!responseText.trim()) {
-        throw new Error(
-            "Empty response from server. Check backend/server.js."
-        );
+        throw new Error("Empty response from server. Check backend/server.js.");
     }
 
     let result;
@@ -37,34 +35,14 @@ async function sendRequest(url, options) {
     return result;
 }
 
-
 complaintForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const formData = new FormData(complaintForm);
 
-    const complaint = {
-        name: formData.get("name").trim(),
-        email: formData.get("email").trim(),
-        phone: formData.get("phone").trim(),
-        customer_id: formData.get("customer_id").trim(),
-        category: formData.get("category"),
-        service: formData.get("service"),
-        title: formData.get("title").trim(),
-        description: formData.get("description").trim(),
-        priority: formData.get("priority"),
-        address: formData.get("address").trim(),
-        city: formData.get("city").trim(),
-        state: formData.get("state"),
-        pincode: formData.get("pincode").trim(),
-        date: formData.get("date"),
-        time: formData.get("time"),
-        website: formData.get("website").trim(),
-        satisfaction: Number(formData.get("satisfaction")),
-        color: formData.get("color"),
-        updates: formData.has("updates"),
-        terms: formData.has("terms")
-    };
+formData.delete("audio");
+formData.delete("video");
+formData.delete("documents");
 
     submitBtn.disabled = true;
     formMessage.textContent = "Submitting complaint...";
@@ -72,10 +50,7 @@ complaintForm.addEventListener("submit", async function (event) {
     try {
         const result = await sendRequest("/submit-complaint", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(complaint)
+            body: formData
         });
 
         formMessage.textContent =
@@ -152,6 +127,27 @@ trackingForm.addEventListener("submit", async function (event) {
 
             card.appendChild(paragraph);
         });
+
+        if (complaint.image_path) {
+            const imageHeading = document.createElement("h4");
+            imageHeading.textContent = "Uploaded Complaint Image";
+            card.appendChild(imageHeading);
+
+            const image = document.createElement("img");
+            image.src = complaint.image_path;
+            image.alt = "Uploaded complaint evidence";
+            image.style.maxWidth = "250px";
+            image.style.width = "100%";
+            image.style.height = "auto";
+            image.style.borderRadius = "10px";
+            image.style.marginTop = "10px";
+
+            image.onerror = function () {
+                image.alt = "Unable to load the uploaded image.";
+            };
+
+            card.appendChild(image);
+        }
 
         trackingResult.replaceChildren(card);
     } catch (error) {
