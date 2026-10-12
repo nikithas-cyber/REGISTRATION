@@ -12,7 +12,7 @@ const multer = require("multer");
 const app = express();
 app.disable("x-powered-by");
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const uploadsDir = path.join(__dirname, "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
