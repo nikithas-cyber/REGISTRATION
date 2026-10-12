@@ -1,0 +1,7 @@
+# Environment variables and passwords
+.env
+backend/.env
+
+# Installed dependencies
+node_modules/
+backend/node_modules/
