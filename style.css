@@ -223,4 +223,48 @@ footer {
     button {
         width: 100%;
     }
+    
+
+input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px dashed #c084fc;
+    border-radius: 10px;
+    background: #fcf8ff;
+    color: #59356f;
+}
+
+input[type="file"]::file-selector-button {
+    padding: 8px 12px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #6d28d9;
+    color: white;
+    cursor: pointer;
+}
+
+.evidence-preview {
+    display: block;
+    max-width: 100%;
+    width: 400px;
+    margin-top: 12px;
+    border-radius: 10px;
+}
+
+.evidence-link {
+    display: inline-block;
+    margin: 8px 8px 8px 0;
+    color: #6d28d9;
+    overflow-wrap: anywhere;
+}
+
+#submitBtn:disabled,
+#trackBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 }

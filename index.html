@@ -112,24 +112,49 @@
                     <input id="time" name="time" type="time">
                 </fieldset>
 
-                <fieldset>
-                    <legend>Problem Evidence</legend>
+                
+<fieldset>
+    <legend>Problem Evidence</legend>
 
-                    <label for="image">Problem Image</label>
-                    <input id="image" name="image" type="file" accept="image/*">
+    <label for="image">Problem Image</label>
+    <input
+        id="image"
+        name="image"
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+    >
 
-                    <label for="audio">Audio Explanation</label>
-                    <input id="audio" name="audio" type="file" accept="audio/*">
+    <label for="audio">Audio Explanation</label>
+    <input
+        id="audio"
+        name="audio"
+        type="file"
+        accept="audio/*,.m4a"
+    >
 
-                    <label for="video">Problem Video</label>
-                    <input id="video" name="video" type="file" accept="video/*">
+    <label for="video">Problem Video</label>
+    <input
+        id="video"
+        name="video"
+        type="file"
+        accept="video/*,.mov"
+    >
 
-                    <label for="documents">Supporting Documents</label>
-                    <input id="documents" name="documents" type="file"
-                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+    <label for="documents">Supporting Documents</label>
+    <input
+        id="documents"
+        name="documents"
+        type="file"
+        accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.jpg,.jpeg,.png"
+        multiple
+    >
 
-                    <p class="hint">File selection is available; uploading and storing files is not implemented yet.</p>
-                </fieldset>
+    <p class="hint">
+        Images, audio and video: maximum 50 MB per file.
+        You can attach up to 5 documents.
+    </p>
+</fieldset>
+
 
                 <fieldset>
                     <legend>Additional Information</legend>
@@ -142,7 +167,7 @@
                     <input id="satisfaction" name="satisfaction"
                            type="range" min="1" max="10" value="5">
 
-                    <label for="color">Preferred Color</label>
+                    <label for="color">Appliance colour</label>
                     <input id="color" name="color" type="color" value="#000000">
                 </fieldset>
 
@@ -193,4 +218,4 @@
         <p>&copy; 2026 Smart Service & Complaints Portal</p>
     </footer>
 </body>
-</html>
+</html> 

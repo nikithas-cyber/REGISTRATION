@@ -6,25 +6,19 @@ const trackBtn = document.getElementById("trackBtn");
 const formMessage = document.getElementById("formMessage");
 const trackingResult = document.getElementById("trackingResult");
 
-async function sendRequest(url, options) {
+async function sendRequest(url, options = {}) {
     const response = await fetch(url, options);
-    const responseText = await response.text();
-
-    console.log("URL:", url);
-    console.log("Status:", response.status);
-    console.log("Response:", responseText);
-
-    if (!responseText.trim()) {
-        throw new Error("Empty response from server. Check backend/server.js.");
-    }
+    const text = await response.text();
 
     let result;
 
     try {
-        result = JSON.parse(responseText);
+        result = JSON.parse(text);
     } catch {
         throw new Error(
-            "Invalid JSON response: " + responseText.slice(0, 200)
+            text.trim()
+                ? "Server returned an invalid response."
+                : "Empty response from server. Check backend/server.js."
         );
     }
 
@@ -35,17 +29,62 @@ async function sendRequest(url, options) {
     return result;
 }
 
-complaintForm.addEventListener("submit", async function (event) {
+function addText(parent, label, value) {
+    const p = document.createElement("p");
+    const strong = document.createElement("strong");
+
+    strong.textContent = label + ": ";
+    p.append(strong, document.createTextNode(value ?? "Not provided"));
+    parent.appendChild(p);
+}
+
+function addEvidence(card, label, url, type) {
+    if (!url) return;
+
+    const heading = document.createElement("h4");
+    heading.textContent = label;
+    card.appendChild(heading);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.className = "evidence-link";
+    link.textContent = "Open " + label;
+    card.appendChild(link);
+
+    if (type === "image" || type === "audio" || type === "video") {
+        const media = document.createElement(
+            type === "image" ? "img" : type
+        );
+
+        media.src = url;
+        media.className = "evidence-preview";
+        media.controls = type !== "image";
+
+        if (type === "image") {
+            media.alt = "Uploaded complaint evidence";
+        } else {
+            media.preload = "metadata";
+        }
+
+        card.appendChild(media);
+    }
+}
+
+complaintForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const formData = new FormData(complaintForm);
+    const documents = document.getElementById("documents").files;
 
-formData.delete("audio");
-formData.delete("video");
-formData.delete("documents");
+    if (documents.length > 5) {
+        formMessage.textContent = "You can upload a maximum of 5 documents.";
+        return;
+    }
 
     submitBtn.disabled = true;
-    formMessage.textContent = "Submitting complaint...";
+    formMessage.textContent = "Submitting complaint and uploading evidence...";
 
     try {
         const result = await sendRequest("/submit-complaint", {
@@ -68,15 +107,14 @@ formData.delete("documents");
     }
 });
 
-complaintForm.addEventListener("reset", function () {
+complaintForm.addEventListener("reset", () => {
     formMessage.textContent = "";
 });
 
-trackingForm.addEventListener("submit", async function (event) {
+trackingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const id = document.getElementById("complaintId").value.trim();
-
     trackingResult.replaceChildren();
 
     if (!id || !Number.isSafeInteger(Number(id)) || Number(id) < 1) {
@@ -105,6 +143,7 @@ trackingForm.addEventListener("submit", async function (event) {
             ["Category", complaint.category],
             ["Service", complaint.service],
             ["Title", complaint.title],
+            ["Description", complaint.description],
             ["Priority", complaint.priority],
             ["Status", complaint.status],
             [
@@ -116,37 +155,32 @@ trackingForm.addEventListener("submit", async function (event) {
         ];
 
         details.forEach(([label, value]) => {
-            const paragraph = document.createElement("p");
-            const strong = document.createElement("strong");
-
-            strong.textContent = `${label}: `;
-            paragraph.appendChild(strong);
-            paragraph.appendChild(
-                document.createTextNode(value ?? "Not provided")
-            );
-
-            card.appendChild(paragraph);
+            addText(card, label, value);
         });
 
-        if (complaint.image_path) {
-            const imageHeading = document.createElement("h4");
-            imageHeading.textContent = "Uploaded Complaint Image";
-            card.appendChild(imageHeading);
+        addEvidence(card, "Uploaded Image", complaint.image_path, "image");
+        addEvidence(card, "Audio Explanation", complaint.audio_path, "audio");
+        addEvidence(card, "Problem Video", complaint.video_path, "video");
 
-            const image = document.createElement("img");
-            image.src = complaint.image_path;
-            image.alt = "Uploaded complaint evidence";
-            image.style.maxWidth = "250px";
-            image.style.width = "100%";
-            image.style.height = "auto";
-            image.style.borderRadius = "10px";
-            image.style.marginTop = "10px";
+        let documents = [];
 
-            image.onerror = function () {
-                image.alt = "Unable to load the uploaded image.";
-            };
+        try {
+            documents = complaint.documents_path
+                ? JSON.parse(complaint.documents_path)
+                : [];
+        } catch {
+            documents = [];
+        }
 
-            card.appendChild(image);
+        if (Array.isArray(documents)) {
+            documents.forEach((url, index) => {
+                addEvidence(
+                    card,
+                    `Supporting Document ${index + 1}`,
+                    url,
+                    "document"
+                );
+            });
         }
 
         trackingResult.replaceChildren(card);

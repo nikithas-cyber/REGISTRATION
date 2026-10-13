@@ -1,3 +1,4 @@
+
 require("dotenv").config({
     path: require("path").join(__dirname, "..", ".env")
 });
@@ -14,45 +15,99 @@ app.disable("x-powered-by");
 
 const PORT = process.env.PORT || 3000;
 
+// Upload directory
 const uploadsDir = path.join(__dirname, "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+// File storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadsDir);
     },
+
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
         cb(null, crypto.randomUUID() + ext);
     }
 });
 
+// Allowed file MIME types
+const allowedMimeTypes = new Set([
+    // Images
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+
+    // Audio
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/mp4",
+    "audio/x-m4a",
+    "audio/aac",
+    "audio/ogg",
+    "audio/webm",
+    "audio/flac",
+    "audio/3gpp",
+
+    // Video
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
+    "video/x-matroska",
+    "video/3gpp",
+    "video/ogg",
+
+    // Documents
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/plain",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+]);
+
+// Upload limits: 50 MB per file, maximum 8 files total
 const upload = multer({
     storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024
-    },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/webp"
-        ];
 
-        if (!allowedTypes.includes(file.mimetype)) {
-            return cb(new Error("Only JPG, PNG, GIF, and WEBP images are allowed."));
+    limits: {
+        fileSize: 50 * 1024 * 1024,
+        files: 8
+    },
+
+    fileFilter: (req, file, cb) => {
+        if (!allowedMimeTypes.has(file.mimetype)) {
+            return cb(
+                new Error(
+                    "Unsupported file type: " + file.originalname
+                )
+            );
         }
 
         cb(null, true);
     }
 });
 
+// Accepted file fields
+const uploadEvidence = upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "audio", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+    { name: "documents", maxCount: 5 }
+]);
+
+// Middleware
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname, "..")));
 app.use("/uploads", express.static(uploadsDir));
 
+// MySQL connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -63,7 +118,6 @@ const db = mysql.createConnection({
 db.connect((error) => {
     if (error) {
         console.error("MySQL connection failed:", error.message);
-        console.error("Server cannot save or track complaints.");
         process.exit(1);
     }
 
@@ -71,9 +125,21 @@ db.connect((error) => {
     console.log("Connected database:", process.env.DB_NAME);
 });
 
-    console.log("MySQL connected successfully!");
+// Helper: remove uploaded files after a failed submission
+function deleteUploadedFiles(files) {
+    Object.values(files || {}).flat().forEach((file) => {
+        fs.unlink(file.path, (error) => {
+            if (error) {
+                console.error(
+                    "File cleanup failed:",
+                    error.message
+                );
+            }
+        });
+    });
+}
 
-
+// Track complaint
 app.get("/track-complaint/:id", (req, res) => {
     const id = Number(req.params.id);
 
@@ -100,11 +166,12 @@ app.get("/track-complaint/:id", (req, res) => {
             });
         }
 
-        res.json(results[0]);
+        return res.json(results[0]);
     });
 });
 
-app.post("/submit-complaint", upload.single("image"), (req, res) => {
+// Submit complaint with image, audio, video and documents
+app.post("/submit-complaint", uploadEvidence, (req, res) => {
     console.log("POST /submit-complaint received");
 
     const {
@@ -130,15 +197,26 @@ app.post("/submit-complaint", upload.single("image"), (req, res) => {
         terms
     } = req.body;
 
-    const imagePath = req.file
-        ? `/uploads/${req.file.filename}`
+    const files = req.files || {};
+
+    // Uploaded file paths
+    const imagePath = files.image?.[0]
+        ? `/uploads/${files.image[0].filename}`
         : null;
 
-    console.log(
-        "Uploaded image:",
-        req.file ? req.file.filename : "No image uploaded"
+    const audioPath = files.audio?.[0]
+        ? `/uploads/${files.audio[0].filename}`
+        : null;
+
+    const videoPath = files.video?.[0]
+        ? `/uploads/${files.video[0].filename}`
+        : null;
+
+    const documentPaths = (files.documents || []).map(
+        (file) => `/uploads/${file.filename}`
     );
 
+    // Validate required fields
     if (
         !name?.trim() ||
         !email?.trim() ||
@@ -148,21 +226,42 @@ app.post("/submit-complaint", upload.single("image"), (req, res) => {
         !description?.trim() ||
         !["true", "on", "1"].includes(String(terms))
     ) {
+        deleteUploadedFiles(files);
+
         return res.status(400).json({
             message: "Complete the required fields and accept the terms."
         });
     }
 
+    // Insert complaint and evidence paths into MySQL
     const sql = `
         INSERT INTO complaints (
-            name, email, phone, customer_id,
-            category, service, title, description,
-            priority, address, city, state, pincode,
-            preferred_date, preferred_time, website,
-            satisfaction, preferred_color, updates, terms,
-            image_path
+            name,
+            email,
+            phone,
+            customer_id,
+            category,
+            service,
+            title,
+            description,
+            priority,
+            address,
+            city,
+            state,
+            pincode,
+            preferred_date,
+            preferred_time,
+            website,
+            satisfaction,
+            preferred_color,
+            updates,
+            terms,
+            image_path,
+            audio_path,
+            video_path,
+            documents_path
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -182,55 +281,78 @@ app.post("/submit-complaint", upload.single("image"), (req, res) => {
         date || null,
         time || null,
         website?.trim() || null,
+
         satisfaction !== undefined &&
         satisfaction !== "" &&
         Number.isFinite(Number(satisfaction))
             ? Number(satisfaction)
             : null,
+
         color || null,
         ["true", "on", "1"].includes(String(updates)) ? 1 : 0,
         1,
-        imagePath
+        imagePath,
+        audioPath,
+        videoPath,
+        documentPaths.length > 0
+            ? JSON.stringify(documentPaths)
+            : null
     ];
 
     db.query(sql, values, (error, result) => {
         if (error) {
             console.error("Database error:", error.message);
-
-            if (req.file) {
-                fs.unlink(req.file.path, (unlinkError) => {
-                    if (unlinkError) {
-                        console.error("Uploaded file cleanup failed:", unlinkError.message);
-                    }
-                });
-            }
+            deleteUploadedFiles(files);
 
             return res.status(500).json({
-                message: "Could not save the complaint. Please try again."
+                message: "Could not save the complaint. Please check the server and database."
             });
         }
 
         console.log("Complaint saved. ID:", result.insertId);
-        console.log("Image path saved:", imagePath);
+
+        console.log("Uploaded evidence:", {
+            imagePath,
+            audioPath,
+            videoPath,
+            documentPaths
+        });
 
         return res.status(201).json({
             message: "Complaint submitted successfully!",
             complaintId: result.insertId,
-            imagePath
+            imagePath,
+            audioPath,
+            videoPath,
+            documentPaths
         });
     });
 });
 
+// Handle file upload and server errors
 app.use((error, req, res, next) => {
+    if (res.headersSent) {
+        return next(error);
+    }
+
     if (error instanceof multer.MulterError) {
         if (error.code === "LIMIT_FILE_SIZE") {
             return res.status(400).json({
-                message: "Image size must not exceed 5 MB."
+                message: "Each file must not exceed 50 MB."
+            });
+        }
+
+        if (
+            error.code === "LIMIT_FILE_COUNT" ||
+            error.code === "LIMIT_UNEXPECTED_FILE"
+        ) {
+            return res.status(400).json({
+                message: "Too many files or an invalid upload field. Maximum: 1 image, 1 audio, 1 video and 5 documents."
             });
         }
 
         return res.status(400).json({
-            message: "Image upload failed: " + error.message
+            message: "File upload failed: " + error.message
         });
     }
 
@@ -245,13 +367,17 @@ app.use((error, req, res, next) => {
     next();
 });
 
-app.listen(PORT, () => {
+// Start server
+const server = app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
 
+// Graceful shutdown
 process.on("SIGINT", () => {
-    db.end(() => {
-        console.log("MySQL connection closed.");
-        process.exit(0);
+    server.close(() => {
+        db.end(() => {
+            console.log("MySQL connection closed.");
+            process.exit(0);
+        });
     });
 });
