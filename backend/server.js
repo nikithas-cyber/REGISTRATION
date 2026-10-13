@@ -63,11 +63,16 @@ const db = mysql.createConnection({
 db.connect((error) => {
     if (error) {
         console.error("MySQL connection failed:", error.message);
-        return;
+        console.error("Server cannot save or track complaints.");
+        process.exit(1);
     }
 
     console.log("MySQL connected successfully!");
+    console.log("Connected database:", process.env.DB_NAME);
 });
+
+    console.log("MySQL connected successfully!");
+
 
 app.get("/track-complaint/:id", (req, res) => {
     const id = Number(req.params.id);
